@@ -1,0 +1,2231 @@
+<HTML>
+<STYLE TYPE="TEXT/CSS">
+TABLE.UML {
+	BORDER-WIDTH: 1PX 1PX 1PX 1PX;
+	BORDER-SPACING: 0PX;
+	BORDER-STYLE: SOLID SOLID SOLID SOLID;
+	BORDER-COLOR: BLACK BLACK BLACK BLACK;
+	BORDER-COLLAPSE: SEPARATE;
+	BACKGROUND-COLOR: WHITE;
+}
+
+CODE {
+	FONT-FAMILY: ARIAL;
+	FONT-SIZE: 80%;
+}
+
+PRE {
+	FONT-FAMILY: ARIAL;
+	FONT-SIZE: 80%;
+}
+
+H1 {
+	FONT-FAMILY: ARIAL;
+	FONT-SIZE: 144%;
+	FONT-STYLE: BOLD;
+}
+
+H2 {
+	FONT-FAMILY: ARIAL;
+	FONT-SIZE: 120%;
+	FONT-STYLE: BOLD;
+}
+
+H3 {
+	FONT-FAMILY: ARIAL;
+	FONT-SIZE: 100%;
+	FONT-STYLE: BOLD;
+}
+
+</STYLE>
+<HEAD>
+<TITLE>
+Databaze serialu</TITLE>
+</HEAD>
+<BODY>
+<H1>Databaze serialu</H1>
+<B>author&#40;s&#41;: </B>David Pocar
+<BR>
+<P>
+
+</P>
+
+<BR>
+<HR>
+<H2>Workspace</H2>
+<PRE>&quot;Pocet osob&#44; ktere se vyskytnuly ve vice jak dvou epizodach v libovolnem serialu&quot;
+OsobaSet select: [:os | os PocetEpizod &gt; 2].
+
+&quot;Nazev nejlepsiho serialu kazde spolecnosti&quot;
+SpolecnostSet collect: [ :sp | sp NejlepsiSerial nazev ].
+
+&quot;Vsechny zeme&#44; kde byly vsechny serialy nataceny&quot;
+&#40;SerialSet collect: [ :s | s ZemeNataceni ]&#41; flatten asSet.
+
+&quot;Vsechny zeme&#44; kde byl serial dane spolecnosti natacen&quot;
+&#40;&#40;SerialSet select: [ :s | s spolecnost nazev = &#39;Qwert&#39;]&#41; collect: [ :s | s ZemeNataceni ]&#41; flatten asSet.
+
+&quot;Epizody s hodnoceni od 2 do 8 serazeno od nejhorsiho&quot;
+&#40;EpizodaSet select: [ :e | e hodnoceni between: 2 and: 8]&#41; asSet sortBy: [ :f | f hodnoceni].
+
+&quot;Postavy&#44; ktere hrala herecka jmenem &#39;Hitomi&#39;&quot;
+&#40;PostavaSet select: [:p | p herec jmeno = &#39;Hitomi&#39;]&#41;.
+
+&quot;Prvni epizody prvn&#237; serie&quot;
+EpizodaSet select: [:e | e serie cisloSerie = 1 &amp; e cisloEpizody = 1].
+
+&quot;Serialy s zanrem komedie &quot;
+SerialSet select: [ :s | &#40;s zanry collect: [ :z | z nazev ]&#41; includes: &#39;Komedie&#39;].
+
+&quot;Nejdrazsi lokalita v CR&quot;
+&#40;LokalitaSet select: [:l | l adresa zeme = &#39;Czech Republic&#39;]&#41;
+inject: nil into: [:a :b | &#40;a isNil ifTrue: [0] ifFalse: [a cenaKc]&#41; &lt; b cenaKc ifFalse: [a] ifTrue: [b]].
+
+&quot;Cena nejdrazsi lokality v CR&quot;
+&#40;&#40;LokalitaSet select: [:l | l adresa zeme = &#39;Czech Republic&#39;]&#41; collect: [:l | l cenaKc]&#41; max 
+
+
+</PRE>
+<H4>Workspace Objects</H4>
+<UL>
+
+<BR>
+<LI>
+<CODE>
+AdresaSet :Set
+</CODE>
+<LI>
+<CODE>
+EpizodaSet :Set
+</CODE>
+<LI>
+<CODE>
+HerecSet :Set
+</CODE>
+<LI>
+<CODE>
+LokalitaSet :Set
+</CODE>
+<LI>
+<CODE>
+OceneniSet :Set
+</CODE>
+<LI>
+<CODE>
+OsobaSet :Set
+</CODE>
+<LI>
+<CODE>
+PostavaSet :Set
+</CODE>
+<LI>
+<CODE>
+ReziserSet :Set
+</CODE>
+<LI>
+<CODE>
+ScenaristaSet :Set
+</CODE>
+<LI>
+<CODE>
+SerialSet :Set
+</CODE>
+<LI>
+<CODE>
+SerieSet :Set
+</CODE>
+<LI>
+<CODE>
+SpolecnostSet :Set
+</CODE>
+<LI>
+<CODE>
+ZanrSet :Set
+</CODE>
+</UL>
+
+<BR>
+<HR>
+<H2>Script</H2>
+<PRE>&quot;Herci&quot;
+herec1 := Herec new.
+herec1
+jmeno: &#39;Felix&#39;;
+prijmeni: &#39;Bradford&#39;;
+datumNarozeni: &#39;02-21-1951&#39; asDate;
+narodnost: &#39;Saudi Arabia&#39;;
+praceHodin: 9;
+hodinovaMzda: 336;
+pohlavi: &#39;muz&#39;.
+
+herec2 := Herec new.
+herec2
+jmeno: &#39;Bret&#39;;
+prijmeni: &#39;Mcintosh&#39;;
+datumNarozeni: &#39;07-19-1943&#39; asDate;
+narodnost: &#39;Nigeria&#39;;
+praceHodin: 13;
+hodinovaMzda: 332.
+
+herec3 := Herec new.
+herec3
+jmeno: &#39;Hitomi&#39;;
+prijmeni: &#39;Perez&#39;;
+datumNarozeni: &#39;08-06-1994&#39; asDate;
+narodnost: &#39;Croatia&#39;;
+praceHodin: 9;
+hodinovaMzda: 22.
+
+herec4 := Herec new.
+herec4
+jmeno: &#39;Richard&#39;;
+prijmeni: &#39;Rutledge&#39;;
+datumNarozeni: &#39;09-12-1978&#39; asDate;
+narodnost: &#39;Iran&#39;;
+praceHodin: 2;
+hodinovaMzda: 329.
+
+herec5 := Herec new.
+herec5
+jmeno: &#39;Ase&#39;;
+prijmeni: &#39;Kor&#39;;
+datumNarozeni: &#39;11-11-1955&#39; asDate;
+narodnost: &#39;Sri Lanka&#39;;
+praceHodin: 15;
+hodinovaMzda: 116.
+
+herec6 := Herec new.
+herec6
+jmeno: &#39;Kirk&#39;;
+prijmeni: &#39;Whitaker&#39;;
+datumNarozeni: &#39;11-23-1965&#39; asDate;
+narodnost: &#39;Sri Lanka&#39;;
+praceHodin: 1;
+hodinovaMzda: 305.
+
+herec7 := Herec new.
+herec7
+jmeno: &#39;Felix&#39;;
+prijmeni: &#39;Bradford&#39;;
+datumNarozeni: &#39;02-21-1951&#39; asDate;
+narodnost: &#39;Saudi Arabia&#39;;
+praceHodin: 7;
+hodinovaMzda: 276.
+
+herec8 := Herec new.
+herec8
+jmeno: &#39;Ernesto&#39;;
+prijmeni: &#39;Brooks&#39;;
+datumNarozeni: &#39;02-21-1951&#39; asDate;
+narodnost: &#39;Saint Pierre &amp; Miquelon&#39;;
+praceHodin: 5;
+hodinovaMzda: 56.
+
+herec9 := Herec new.
+herec9
+jmeno: &#39;Asanagi&#39;;
+prijmeni: &#39;Heh&#39;;
+datumNarozeni: &#39;08-06-1984&#39; asDate;
+narodnost: &#39;Japan&#39;;
+praceHodin: 12;
+hodinovaMzda: 157.
+
+
+&quot;Postavy&quot;
+postava1 := Postava new.
+postava1
+jmeno: &#39;Lili&#39;;
+prijmeni: &#39;Bradley&#39;.
+
+postava2 := Postava new.
+postava2
+jmeno: &#39;Sachiko&#39;;
+prijmeni: &#39;Long&#39;.
+
+postava3 := Postava new.
+postava3
+jmeno: &#39;Irene&#39;;
+prijmeni: &#39;Russo&#39;.
+
+postava4 := Postava new.
+postava4
+jmeno: &#39;Mieko&#39;;
+prijmeni: &#39;Ferguson&#39;.
+
+postava5 := Postava new.
+postava5
+jmeno: &#39;Arlene&#39;;
+prijmeni: &#39;Kirby&#39;.
+
+postava6 := Postava new.
+postava6
+jmeno: &#39;Noel&#39;;
+prijmeni: &#39;Perry&#39;.
+
+postava7 := Postava new.
+postava7
+jmeno: &#39;Leslie&#39;;
+prijmeni: &#39;Herman&#39;.
+
+postava8 := Postava new.
+postava8
+jmeno: &#39;Danielle&#39;;
+prijmeni: &#39;Lester&#39;.
+
+postava9 := Postava new.
+postava9
+jmeno: &#39;Asu&#39;;
+prijmeni: &#39;Nagi&#39;.
+
+
+&quot;Scenariste&quot;
+scenarista1 := Scenarista new.
+scenarista1
+jmeno: &#39;Iris&#39;;
+prijmeni: &#39;Hooper&#39;;
+datumNarozeni: &#39;05-17-1959&#39; asDate;
+narodnost: &#39;Morocco&#39;;
+prumPocetStran: 27;
+praceHodin: 9;
+hodinovaMzda: 336.
+
+scenarista2 := Scenarista new.
+scenarista2
+jmeno: &#39;Richard&#39;;
+prijmeni: &#39;Rutledge&#39;;
+datumNarozeni: &#39;09-12-1978&#39; asDate;
+narodnost: &#39;Iran&#39;;
+prumPocetStran: 15;
+praceHodin: 9;
+hodinovaMzda: 336.
+
+scenarista3 := Scenarista new.
+scenarista3
+jmeno: &#39;Isaac&#39;;
+prijmeni: &#39;Robinson&#39;;
+datumNarozeni: &#39;09-26-1960&#39; asDate;
+narodnost: &#39;Turks &amp; Caicos&#39;;
+prumPocetStran: 13;
+praceHodin: 9;
+hodinovaMzda: 336.
+
+scenarista4 := Scenarista new.
+scenarista4
+jmeno: &#39;Felix&#39;;
+prijmeni: &#39;Bradford&#39;;
+datumNarozeni: &#39;02-21-1951&#39; asDate;
+narodnost: &#39;Saudi Arabia&#39;;
+prumPocetStran: 36;
+praceHodin: 9;
+hodinovaMzda: 336.
+
+scenarista5 := Scenarista new.
+scenarista5
+jmeno: &#39;Sandy&#39;;
+prijmeni: &#39;Vaughn&#39;;
+datumNarozeni: &#39;11-12-1981&#39; asDate;
+narodnost: &#39;Iraq&#39;;
+prumPocetStran: 42;
+praceHodin: 9;
+hodinovaMzda: 336.
+
+scenarista6 := Scenarista new.
+scenarista6
+jmeno: &#39;Sally&#39;;
+prijmeni: &#39;Knowles&#39;;
+datumNarozeni: &#39;06-26-1979&#39; asDate;
+narodnost: &#39;Uganda&#39;;
+prumPocetStran: 26;
+praceHodin: 9;
+hodinovaMzda: 336.
+
+
+&quot;Reziseri&quot;
+reziser1 := Reziser new.
+reziser1 
+jmeno: &#39;Reina&#39;; 
+prijmeni: &#39;Spencer&#39;; 
+datumNarozeni: &#39;10-26-1991&#39; asDate; 
+narodnost: &#39;Turks &amp; Caicos&#39;;
+praceHodin: 9;
+hodinovaMzda: 336.
+
+reziser2 := Reziser new.
+reziser2
+jmeno: &#39;Sere&#39;;
+prijmeni: &#39;Aqu&#39;;
+datumNarozeni: &#39;08-06-1974&#39; asDate;
+narodnost: &#39;Croatia&#39;;
+praceHodin: 9;
+hodinovaMzda: 336.
+
+reziser3 := Reziser new.
+reziser3
+jmeno: &#39;Eren&#39;;
+prijmeni: &#39;Jaeger&#39;;
+datumNarozeni: &#39;01-21-1971&#39; asDate;
+narodnost: &#39;Saint Pierre &amp; Miquelon&#39;;
+praceHodin: 9;
+hodinovaMzda: 336.
+
+
+&quot;Oceneni&quot;
+oceneni1 := Oceneni new.
+oceneni1 
+nazev: &#39;Prvni oceneni&#39;;
+popis: &#39;Popis oceneni&#39;;
+rok: 2010.
+
+oceneni2 := Oceneni new.
+oceneni2 
+nazev: &#39;Druhe oceneni&#39;;
+popis: &#39;Popis oceneni&#39;;
+rok: 2011.
+
+
+&quot;Spolecnost&quot;
+spolecnost1 := Spolecnost new.
+spolecnost1 
+nazev: &#39;HPO&#39;.
+
+spolecnost2 := Spolecnost new.
+spolecnost2 
+nazev: &#39;Qwert&#39;.
+
+
+&quot;Serialy&quot;
+serial1 := Serial new.
+serial1
+nazev: &#39;The X&#39;;
+datumZahajeni: &#39;1-1-2000&#39; asDate;
+popis: &#39;Serial je o necem.&#39;.
+
+serial2 := Serial new.
+serial2
+nazev: &#39;The Y&#39;;
+datumZahajeni: &#39;1-1-2001&#39; asDate;
+popis: &#39;Serial je o necem jinem nez jiny serial.&#39;.
+
+serial3 := Serial new.
+serial3
+nazev: &#39;The ABC&#39;;
+datumZahajeni: &#39;1-1-2020&#39; asDate;
+popis: &#39;Novejsi serial o necem jinem nez jine serialy.&#39;.
+
+
+&quot;Zanry&quot;
+zanr1 := Zanr new.
+zanr1
+nazev: &#39;Drama&#39;.
+
+zanr2 := Zanr new.
+zanr2
+nazev: &#39;Komedie&#39;.
+
+zanr3 := Zanr new.
+zanr3
+nazev: &#39;Western&#39;.
+
+zanr4 := Zanr new.
+zanr4
+nazev: &#39;Historick&#253;&#39;.
+
+zanr5 := Zanr new.
+zanr5
+nazev: &#39;Poh&#225;dka&#39;.
+
+zanr6 := Zanr new.
+zanr6
+nazev: &#39;V&#225;le&#269;n&#253;&#39;.
+
+
+&quot;Serie&quot;
+serie11 := Serie new.
+serie11
+cisloSerie: 1;
+datumZahajeni: &#39;1-1-2018&#39; asDate.
+
+serie12 := Serie new.
+serie12
+cisloSerie: 2;
+datumZahajeni: &#39;1-1-2019&#39; asDate.
+
+serie13 := Serie new.
+serie13
+cisloSerie: 3;
+datumZahajeni: &#39;1-1-2020&#39; asDate.
+
+serie21 := Serie new.
+serie21
+cisloSerie: 1;
+datumZahajeni: &#39;1-1-2018&#39; asDate.
+
+serie22 := Serie new.
+serie22
+cisloSerie: 2;
+datumZahajeni: &#39;1-1-2019&#39; asDate.
+
+serie23 := Serie new.
+serie23
+cisloSerie: 3;
+datumZahajeni: &#39;1-1-2020&#39; asDate.
+
+serie31 := Serie new.
+serie31
+cisloSerie: 1;
+datumZahajeni: &#39;1-1-2018&#39; asDate.
+
+serie32 := Serie new.
+serie32
+cisloSerie: 2;
+datumZahajeni: &#39;1-1-2019&#39; asDate.
+
+serie33 := Serie new.
+serie33
+cisloSerie: 3;
+datumZahajeni: &#39;1-1-2020&#39; asDate.
+
+
+&quot;Epizody&quot;
+epizoda11 := Epizoda new.
+epizoda11
+cisloEpizody: 1;
+datumVysilani: &#39;1-1-2011&#39; asDate;
+nazev: &#39;A vraci uder&#39;;
+hodnoceni: 10;
+popis: &#39;&#39;;
+dobaTrvani: 53.
+
+epizoda12 := Epizoda new.
+epizoda12
+cisloEpizody: 2;
+datumVysilani: &#39;1-2-2011&#39; asDate;
+nazev: &#39;B vraci uder&#39;;
+hodnoceni: 9;
+popis: &#39;&#39;;
+dobaTrvani: 50.
+
+epizoda13 := Epizoda new.
+epizoda13
+cisloEpizody: 3;
+datumVysilani: &#39;1-3-2011&#39; asDate;
+nazev: &#39;C vraci uder&#39;;
+hodnoceni: 8;
+popis: &#39;&#39;;
+dobaTrvani: 51.
+
+epizoda21 := Epizoda new.
+epizoda21
+cisloEpizody: 1;
+datumVysilani: &#39;1-1-2011&#39; asDate;
+nazev: &#39;Spatna epizoda&#39;;
+hodnoceni: 2;
+popis: &#39;&#39;;
+dobaTrvani: 14.
+
+epizoda22 := Epizoda new.
+epizoda22
+cisloEpizody: 2;
+datumVysilani: &#39;1-2-2011&#39; asDate;
+nazev: &#39;Nic moc epizoda&#39;;
+hodnoceni: 3;
+popis: &#39;&#39;;
+dobaTrvani: 15.
+
+epizoda23 := Epizoda new.
+epizoda23
+cisloEpizody: 3;
+datumVysilani: &#39;1-3-2011&#39; asDate;
+nazev: &#39;Nezajem epizoda&#39;;
+hodnoceni: 1;
+popis: &#39;&#39;;
+dobaTrvani: 16.
+
+epizoda31 := Epizoda new.
+epizoda31
+cisloEpizody: 1;
+datumVysilani: &#39;1-1-2011&#39; asDate;
+nazev: &#39;Nejlepsi epizoda vsech epizod&#39;;
+hodnoceni: 10;
+popis: &#39;&#39;;
+dobaTrvani: 22.
+
+epizoda32 := Epizoda new.
+epizoda32
+cisloEpizody: 2;
+datumVysilani: &#39;1-2-2011&#39; asDate;
+nazev: &#39;Epizoda z kapsy&#39;;
+hodnoceni: 3;
+popis: &#39;&#39;;
+dobaTrvani: 20.
+
+epizoda33 := Epizoda new.
+epizoda33
+cisloEpizody: 3;
+datumVysilani: &#39;1-3-2011&#39; asDate;
+nazev: &#39;Mozna ok epizoda&#39;;
+hodnoceni: 5;
+popis: &#39;&#39;;
+dobaTrvani: 21.
+
+&quot;Lokality&quot;
+lokalita1 := Lokalita new.
+lokalita1
+pocasi: &#39;Casto oblacno&#39;;
+cenaKc: 420691337.
+
+lokalita2 := Lokalita new.
+lokalita2
+pocasi: &#39;Spise polojasno&#39;;
+cenaKc: 691337.
+
+lokalita3 := Lokalita new.
+lokalita3
+pocasi: &#39;Pouze dest&#39;;
+cenaKc: 1337.
+
+
+&quot;Adresy&quot;
+adresa1 := Adresa new.
+adresa1
+zeme: &#39;Ireland&#39;;
+mesto: &#39;Cork&#39;;
+ulice: &#39;Bandon Rd&#39;;
+cisloPopisne: &#39;179&#39;;
+psc: 81370.
+
+adresa2 := Adresa new.
+adresa2
+zeme: &#39;Czech Republic&#39;;
+mesto: &#39;Praha&#39;;
+ulice: &#39;Prokopakova&#39;;
+cisloPopisne: &#39;12&#39;;
+psc: 13000.
+
+adresa3 := Adresa new.
+adresa3
+zeme: &#39;Czech Republic&#39;;
+mesto: &#39;Praha&#39;;
+ulice: &#39;Barandovsk&#225;&#39;;
+cisloPopisne: &#39;13&#39;;
+psc: 18000.
+
+
+&quot;Osoba - oceneni&quot;
+herec1 oceneni add: oceneni1.
+reziser1 oceneni add: oceneni1.
+
+
+&quot;Lokalita - adresa&quot;
+lokalita1 adresa: adresa1.
+lokalita2 adresa: adresa2.
+lokalita3 adresa: adresa3.
+
+
+&quot;Spolecnost - adresa&quot;
+spolecnost1 adresa: adresa1.
+spolecnost2 adresa: adresa2.
+
+
+&quot;Postavy - herec&quot;
+postava1 herec: herec1.
+postava2 herec: herec1.
+postava3 herec: herec3.
+postava4 herec: herec4.
+postava5 herec: herec5.
+postava6 herec: herec6.
+postava7 herec: herec7.
+postava8 herec: herec1.
+postava9 herec: herec1.
+
+
+&quot;Serial - spolecnost&#44; zanr&#44; oceneni&quot;
+serial1 spolecnost: spolecnost1.
+serial2 spolecnost: spolecnost2.
+serial3 spolecnost: spolecnost2.
+
+serial1 zanry add: zanr1; add: zanr2;  add: zanr3. 
+serial2 zanry add: zanr3; add: zanr4. 
+serial3 zanry add: zanr4; add: zanr5;  add: zanr6. 
+
+serial1 oceneni add: oceneni2.
+
+
+&quot;Serie - serial&quot;
+serie11 serial: serial1.
+serie21 serial: serial2.
+serie31 serial: serial3.
+
+
+&quot;Epizody - serie&#44; reziser&#44; postavy&#44; scenariste&quot;
+epizoda11 reziser: reziser1; serie: serie11.
+epizoda12 reziser: reziser1; serie: serie11.
+epizoda13 reziser: reziser2; serie: serie11.
+
+epizoda21 reziser: reziser2; serie: serie21.
+epizoda22 reziser: reziser2; serie: serie21.
+epizoda23 reziser: reziser2; serie: serie21.
+
+epizoda31 reziser: reziser3; serie: serie31.
+epizoda32 reziser: reziser3; serie: serie31.
+epizoda33 reziser: reziser3; serie: serie31.
+
+epizoda11 postavy add: postava1.
+epizoda12 postavy add: postava1; add: postava2.
+epizoda13 postavy add: postava4; add: postava3.
+
+epizoda21 postavy add: postava4.
+epizoda22 postavy add: postava4; add: postava5.
+epizoda23 postavy add: postava4; add: postava5; add: postava7.
+
+epizoda31 postavy add: postava9.
+epizoda32 postavy add: postava9; add: postava8.
+epizoda33 postavy add: postava9; add: postava8; add: postava7.
+
+epizoda11 scenariste add: scenarista1.
+epizoda12 scenariste add: scenarista1; add: scenarista3.
+epizoda13 scenariste add: scenarista2.
+
+epizoda21 scenariste add: scenarista3.
+epizoda22 scenariste add: scenarista3; add: scenarista4.
+epizoda23 scenariste add: scenarista4.
+
+epizoda31 scenariste add: scenarista5.
+epizoda32 scenariste add: scenarista5; add: scenarista6.
+epizoda33 scenariste add: scenarista6.
+
+epizoda11 lokality add: lokalita1.
+epizoda12 lokality add: lokalita1; add: lokalita2.
+epizoda13 lokality add: lokalita3.
+
+epizoda21 lokality add: lokalita1.
+epizoda22 lokality add: lokalita2; add: lokalita3.
+epizoda23 lokality add: lokalita3.
+
+epizoda31 lokality add: lokalita2.
+epizoda32 lokality add: lokalita2; add: lokalita3.
+epizoda33 lokality add: lokalita3.
+
+
+&quot;Globalni sety&quot;
+OsobaSet := Set new.
+
+HerecSet := Set new.
+PostavaSet := Set new.
+ScenaristaSet := Set new.
+ReziserSet := Set new.
+OceneniSet := Set new.
+SpolecnostSet := Set new.
+SerialSet := Set new.
+ZanrSet := Set new.
+SerieSet := Set new.
+EpizodaSet := Set new.
+LokalitaSet := Set new.
+AdresaSet := Set new.
+
+OsobaSet 
+add: herec1; add: herec2; add: herec3; add: herec4; add: herec5; add: herec6; add: herec7; add: herec8; add: herec9; 
+add: scenarista1; add: scenarista2; add: scenarista3;
+add: reziser1; add: reziser2; add: reziser3.
+
+HerecSet add: herec1; add: herec2; add: herec3; add: herec4; add: herec5; add: herec6; add: herec7; add: herec8; add: herec9.
+PostavaSet add: postava1; add: postava2; add: postava3; add: postava4; add: postava5; add: postava6; add: postava7; add: postava8; add: postava9.
+ScenaristaSet add: scenarista1; add: scenarista2; add: scenarista3.
+ReziserSet add: reziser1; add: reziser2; add: reziser3.
+SpolecnostSet add: spolecnost1; add: spolecnost2.
+OceneniSet add: oceneni1; add: oceneni2.
+SerialSet add: serial1; add: serial2; add: serial3.
+ZanrSet add: zanr1; add: zanr2; add: zanr3; add: zanr4; add: zanr5; add: zanr6.
+SerieSet add: serie11; add: serie12; add: serie13; add: serie21; add: serie22; add: serie23; add: serie31; add: serie32; add: serie33.
+EpizodaSet add: epizoda11; add: epizoda12; add: epizoda13; add: epizoda21; add: epizoda22; add: epizoda23; add: epizoda31; add: epizoda32; add: epizoda33.
+LokalitaSet add: lokalita1; add: lokalita2; add: lokalita3. 
+AdresaSet add: adresa1; add: adresa2; add: adresa3.</PRE>
+<HR>
+<H2>Diagram</H2>
+<IMG SRC="databaze_serialu.gif">
+<HR>
+<H2>Classes</H2>
+<TABLE BORDER="0" CELLPADDING="3" CELLSPACING="0" WIDTH=100%>
+<TR>
+<TD WIDTH=20%>
+<TABLE WIDTH=95% BORDER="1" CELLSPACING="0" BORDERCOLOR=BLACK>
+<TR><TD><BIG>
+<B><CODE>
+Oceneni
+</CODE></B>
+</BIG></TD></TR>
+<TR><TD>
+<I><SMALL>instance variables</SMALL></I><BR>
+<CODE>
+nazev :String
+</CODE>
+<BR>
+<CODE>
+popis :String
+</CODE>
+<BR>
+<CODE>
+rok :Number
+</CODE>
+<BR>
+</TD></TR>
+<TR><TD>
+<I><SMALL>methods</SMALL></I><BR>
+<CODE>
+initialize
+</CODE>
+<BR>
+<CODE>
+nazev
+</CODE>
+<BR>
+<CODE>
+nazev:
+</CODE>
+<BR>
+<CODE>
+popis
+</CODE>
+<BR>
+<CODE>
+popis:
+</CODE>
+<BR>
+<CODE>
+rok
+</CODE>
+<BR>
+<CODE>
+rok:
+</CODE>
+<BR>
+</TD></TR>
+</TABLE>
+</TD>
+<TD VALIGN="TOP">
+<P>
+
+</P>
+</TD>
+</TR>
+</TABLE>
+<H4>code of non-accessing methods: </H4>
+<UL>
+<LI>
+<B><CODE>
+initialize
+</CODE></B>
+<PRE>
+&quot;generated by Daskalos&quot;
+
+     super initialize.
+     nazev := nil.
+     popis := nil.
+     rok := nil.</PRE>
+</UL>
+<TABLE BORDER="0" CELLPADDING="3" CELLSPACING="0" WIDTH=100%>
+<TR>
+<TD WIDTH=20%>
+<TABLE WIDTH=95% BORDER="1" CELLSPACING="0" BORDERCOLOR=BLACK>
+<TR><TD><BIG>
+<B><CODE>
+Zanr
+</CODE></B>
+</BIG></TD></TR>
+<TR><TD>
+<I><SMALL>instance variables</SMALL></I><BR>
+<CODE>
+nazev :String
+</CODE>
+<BR>
+</TD></TR>
+<TR><TD>
+<I><SMALL>methods</SMALL></I><BR>
+<CODE>
+initialize
+</CODE>
+<BR>
+<CODE>
+nazev
+</CODE>
+<BR>
+<CODE>
+nazev:
+</CODE>
+<BR>
+</TD></TR>
+</TABLE>
+</TD>
+<TD VALIGN="TOP">
+<P>
+
+</P>
+</TD>
+</TR>
+</TABLE>
+<H4>code of non-accessing methods: </H4>
+<UL>
+<LI>
+<B><CODE>
+initialize
+</CODE></B>
+<PRE>
+&quot;generated by Daskalos&quot;
+
+     super initialize.
+     nazev := nil.</PRE>
+</UL>
+<TABLE BORDER="0" CELLPADDING="3" CELLSPACING="0" WIDTH=100%>
+<TR>
+<TD WIDTH=20%>
+<TABLE WIDTH=95% BORDER="1" CELLSPACING="0" BORDERCOLOR=BLACK>
+<TR><TD><BIG>
+<B><CODE>
+Adresa
+</CODE></B>
+</BIG></TD></TR>
+<TR><TD>
+<I><SMALL>instance variables</SMALL></I><BR>
+<CODE>
+cisloPopisne :String
+</CODE>
+<BR>
+<CODE>
+mesto :String
+</CODE>
+<BR>
+<CODE>
+psc :Number
+</CODE>
+<BR>
+<CODE>
+ulice :String
+</CODE>
+<BR>
+<CODE>
+zeme :String
+</CODE>
+<BR>
+</TD></TR>
+<TR><TD>
+<I><SMALL>methods</SMALL></I><BR>
+<CODE>
+cisloPopisne
+</CODE>
+<BR>
+<CODE>
+cisloPopisne:
+</CODE>
+<BR>
+<CODE>
+initialize
+</CODE>
+<BR>
+<CODE>
+mesto
+</CODE>
+<BR>
+<CODE>
+mesto:
+</CODE>
+<BR>
+<CODE>
+psc
+</CODE>
+<BR>
+<CODE>
+psc:
+</CODE>
+<BR>
+<CODE>
+ulice
+</CODE>
+<BR>
+<CODE>
+ulice:
+</CODE>
+<BR>
+<CODE>
+zeme
+</CODE>
+<BR>
+<CODE>
+zeme:
+</CODE>
+<BR>
+</TD></TR>
+</TABLE>
+</TD>
+<TD VALIGN="TOP">
+<P>
+
+</P>
+</TD>
+</TR>
+</TABLE>
+<H4>code of non-accessing methods: </H4>
+<UL>
+<LI>
+<B><CODE>
+initialize
+</CODE></B>
+<PRE>
+&quot;generated by Daskalos&quot;
+
+     super initialize.
+     zeme := nil.
+     mesto := nil.
+     ulice := nil.
+     cisloPopisne := nil.
+     psc := nil.</PRE>
+<LI>
+<B><CODE>
+mesto: anObject 
+</CODE></B>
+<PRE>
+	&quot;generated by Daskalos&quot;
+
+	mesto := self checkValue: anObject forVariable: &#35;mesto</PRE>
+</UL>
+<TABLE BORDER="0" CELLPADDING="3" CELLSPACING="0" WIDTH=100%>
+<TR>
+<TD WIDTH=20%>
+<TABLE WIDTH=95% BORDER="1" CELLSPACING="0" BORDERCOLOR=BLACK>
+<TR><TD><BIG>
+<B><CODE>
+Lokalita
+</CODE></B>
+</BIG></TD></TR>
+<TR><TD>
+<I><SMALL>instance variables</SMALL></I><BR>
+<CODE>
+adresa :Object
+</CODE>
+<BR>
+<CODE>
+cenaKc :Number
+</CODE>
+<BR>
+<CODE>
+pocasi :String
+</CODE>
+<BR>
+</TD></TR>
+<TR><TD>
+<I><SMALL>methods</SMALL></I><BR>
+<CODE>
+adresa
+</CODE>
+<BR>
+<CODE>
+adresa:
+</CODE>
+<BR>
+<CODE>
+cenaKc
+</CODE>
+<BR>
+<CODE>
+cenaKc:
+</CODE>
+<BR>
+<CODE>
+initialize
+</CODE>
+<BR>
+<CODE>
+pocasi
+</CODE>
+<BR>
+<CODE>
+pocasi:
+</CODE>
+<BR>
+</TD></TR>
+</TABLE>
+</TD>
+<TD VALIGN="TOP">
+<P>
+
+</P>
+</TD>
+</TR>
+</TABLE>
+<H4>code of non-accessing methods: </H4>
+<UL>
+<LI>
+<B><CODE>
+adresa: anObject 
+</CODE></B>
+<PRE>
+	&quot;generated by Daskalos&quot;
+
+	| tmpAdresa |
+	tmpAdresa := self checkValue: anObject forVariable: &#35;adresa.
+	&#40;tmpAdresa isMemberOf: Adresa&#41; 
+		ifFalse: 
+			[self 
+				error: &#39;Zprava &#39;&#39;Lokalita adresa:&#39;&#39; prijima pouze instanci tridy &#39;&#39;Adresa&#39;&#39;&#39;].
+	adresa := tmpAdresa</PRE>
+<LI>
+<B><CODE>
+initialize
+</CODE></B>
+<PRE>
+&quot;generated by Daskalos&quot;
+
+     super initialize.
+     pocasi := nil.
+     cenaKc := nil.
+     adresa := nil.</PRE>
+</UL>
+<TABLE BORDER="0" CELLPADDING="3" CELLSPACING="0" WIDTH=100%>
+<TR>
+<TD WIDTH=20%>
+<TABLE WIDTH=95% BORDER="1" CELLSPACING="0" BORDERCOLOR=BLACK>
+<TR><TD><BIG>
+<B><CODE>
+Serie
+</CODE></B>
+</BIG></TD></TR>
+<TR><TD>
+<I><SMALL>instance variables</SMALL></I><BR>
+<CODE>
+cisloSerie :Number
+</CODE>
+<BR>
+<CODE>
+datumZahajeni :Date
+</CODE>
+<BR>
+<CODE>
+serial :Object
+</CODE>
+<BR>
+</TD></TR>
+<TR><TD>
+<I><SMALL>methods</SMALL></I><BR>
+<CODE>
+cisloSerie
+</CODE>
+<BR>
+<CODE>
+cisloSerie:
+</CODE>
+<BR>
+<CODE>
+datumZahajeni
+</CODE>
+<BR>
+<CODE>
+datumZahajeni:
+</CODE>
+<BR>
+<CODE>
+DobaTrvani
+</CODE>
+<BR>
+<CODE>
+Hodnoceni
+</CODE>
+<BR>
+<CODE>
+initialize
+</CODE>
+<BR>
+<CODE>
+NejlepsiEpizoda
+</CODE>
+<BR>
+<CODE>
+serial
+</CODE>
+<BR>
+<CODE>
+serial:
+</CODE>
+<BR>
+</TD></TR>
+</TABLE>
+</TD>
+<TD VALIGN="TOP">
+<P>
+
+</P>
+</TD>
+</TR>
+</TABLE>
+<H4>code of non-accessing methods: </H4>
+<UL>
+<LI>
+<B><CODE>
+DobaTrvani
+</CODE></B>
+<PRE>
+	&quot;Doba trvani v minutach vsech epizod dane serie&quot;
+
+	^&#40;&#40;Epizoda allInstances select: [:ep | ep serie = self]&#41; 
+		collect: [:e | e dobaTrvani]&#41; sum</PRE>
+<LI>
+<B><CODE>
+Hodnoceni
+</CODE></B>
+<PRE>
+	&quot;Prumerne hodnoceni vsech epizod z dane serie&quot;
+
+	^&#40;&#40;Epizoda allInstances select: [:ep | ep serie = self]&#41; 
+		collect: [:e | e hodnoceni]&#41; avg</PRE>
+<LI>
+<B><CODE>
+initialize
+</CODE></B>
+<PRE>
+&quot;generated by Daskalos&quot;
+
+     super initialize.
+     cisloSerie := nil.
+     datumZahajeni := nil.
+     serial := nil.</PRE>
+<LI>
+<B><CODE>
+NejlepsiEpizoda
+</CODE></B>
+<PRE>
+	&quot;Nejlepsi epizoda cele serie&quot;
+
+	| epizody |
+	epizody := Epizoda allInstances select: [:ep | ep serie = self].
+	^epizody inject: nil
+		into: 
+			[:a :b | 
+			&#40;a isNil ifTrue: [0] ifFalse: [a hodnoceni]&#41; &lt; b hodnoceni 
+				ifFalse: [a]
+				ifTrue: [b]]</PRE>
+<LI>
+<B><CODE>
+serial: anObject 
+</CODE></B>
+<PRE>
+	&quot;generated by Daskalos&quot;
+
+	| tmpSerial |
+	tmpSerial := self checkValue: anObject forVariable: &#35;serial.
+	&#40;tmpSerial isMemberOf: Serial&#41; 
+		ifFalse: 
+			[self 
+				error: &#39;Zprava &#39;&#39;Serie serial:&#39;&#39; prijima pouze instanci tridy &#39;&#39;Serial&#39;&#39;&#39;].
+	serial := tmpSerial</PRE>
+</UL>
+<TABLE BORDER="0" CELLPADDING="3" CELLSPACING="0" WIDTH=100%>
+<TR>
+<TD WIDTH=20%>
+<TABLE WIDTH=95% BORDER="1" CELLSPACING="0" BORDERCOLOR=BLACK>
+<TR><TD><BIG>
+<B><CODE>
+Serial
+</CODE></B>
+</BIG></TD></TR>
+<TR><TD>
+<I><SMALL>instance variables</SMALL></I><BR>
+<CODE>
+datumZahajeni :Date
+</CODE>
+<BR>
+<CODE>
+nazev :String
+</CODE>
+<BR>
+<CODE>
+oceneni :Set
+</CODE>
+<BR>
+<CODE>
+popis :String
+</CODE>
+<BR>
+<CODE>
+spolecnost :Object
+</CODE>
+<BR>
+<CODE>
+zanry :Set
+</CODE>
+<BR>
+</TD></TR>
+<TR><TD>
+<I><SMALL>methods</SMALL></I><BR>
+<CODE>
+datumZahajeni
+</CODE>
+<BR>
+<CODE>
+datumZahajeni:
+</CODE>
+<BR>
+<CODE>
+DobaTrvani
+</CODE>
+<BR>
+<CODE>
+Hodnoceni
+</CODE>
+<BR>
+<CODE>
+initialize
+</CODE>
+<BR>
+<CODE>
+nazev
+</CODE>
+<BR>
+<CODE>
+nazev:
+</CODE>
+<BR>
+<CODE>
+oceneni
+</CODE>
+<BR>
+<CODE>
+PocetEpizod
+</CODE>
+<BR>
+<CODE>
+popis
+</CODE>
+<BR>
+<CODE>
+popis:
+</CODE>
+<BR>
+<CODE>
+spolecnost
+</CODE>
+<BR>
+<CODE>
+spolecnost:
+</CODE>
+<BR>
+<CODE>
+zanry
+</CODE>
+<BR>
+<CODE>
+ZemeNataceni
+</CODE>
+<BR>
+</TD></TR>
+</TABLE>
+</TD>
+<TD VALIGN="TOP">
+<P>
+
+</P>
+</TD>
+</TR>
+</TABLE>
+<H4>code of non-accessing methods: </H4>
+<UL>
+<LI>
+<B><CODE>
+DobaTrvani
+</CODE></B>
+<PRE>
+	&quot;Doba trvani v minutach vsech epizod vsech serii daneho serialu&quot;
+
+	^&#40;&#40;Epizoda allInstances select: [:ep | ep serie serial = self]&#41; 
+		collect: [:e | e dobaTrvani]&#41; sum</PRE>
+<LI>
+<B><CODE>
+Hodnoceni
+</CODE></B>
+<PRE>
+	&quot;Prumerne hodnoceni vsech epizod ze vsech serii daneho serialu&quot;
+
+	^&#40;&#40;Epizoda allInstances select: [:ep | ep serie serial = self]&#41; 
+		collect: [:e | e hodnoceni]&#41; avg</PRE>
+<LI>
+<B><CODE>
+initialize
+</CODE></B>
+<PRE>
+&quot;generated by Daskalos&quot;
+
+     super initialize.
+     nazev := nil.
+     datumZahajeni := nil.
+     popis := nil.
+     oceneni := Set new.
+     zanry := Set new.
+     spolecnost := nil.</PRE>
+<LI>
+<B><CODE>
+PocetEpizod
+</CODE></B>
+<PRE>
+	&quot;Pocet epizod ze vsech serii daneho serialu&quot;
+
+	^&#40;Epizoda allInstances select: [:ep | ep serie serial = self]&#41; size</PRE>
+<LI>
+<B><CODE>
+spolecnost: anObject 
+</CODE></B>
+<PRE>
+	&quot;generated by Daskalos&quot;
+
+	| tmpSpolecnost |
+	tmpSpolecnost := self checkValue: anObject forVariable: &#35;spolecnost.
+	&#40;tmpSpolecnost isMemberOf: Spolecnost&#41; 
+		ifFalse: 
+			[self 
+				error: &#39;Zprava &#39;&#39;Serial spolecnost:&#39;&#39; prijima pouze instanci tridy &#39;&#39;Spolecnost&#39;&#39;&#39;].
+	spolecnost := tmpSpolecnost</PRE>
+<LI>
+<B><CODE>
+ZemeNataceni
+</CODE></B>
+<PRE>
+	&quot;Vsechny zeme nataceni daneho serialu&quot;
+
+	^&#40;&#40;&#40;Epizoda allInstances select: [:ep | ep serie serial = self]&#41; 
+		collect: [:e | e lokality]&#41; flatten 
+		collect: [:l | l adresa zeme]&#41; asSet</PRE>
+</UL>
+<TABLE BORDER="0" CELLPADDING="3" CELLSPACING="0" WIDTH=100%>
+<TR>
+<TD WIDTH=20%>
+<TABLE WIDTH=95% BORDER="1" CELLSPACING="0" BORDERCOLOR=BLACK>
+<TR><TD><BIG>
+<B><CODE>
+Postava
+</CODE></B>
+</BIG></TD></TR>
+<TR><TD>
+<I><SMALL>instance variables</SMALL></I><BR>
+<CODE>
+herec :Object
+</CODE>
+<BR>
+<CODE>
+jmeno :String
+</CODE>
+<BR>
+<CODE>
+prijmeni :String
+</CODE>
+<BR>
+</TD></TR>
+<TR><TD>
+<I><SMALL>methods</SMALL></I><BR>
+<CODE>
+herec
+</CODE>
+<BR>
+<CODE>
+herec:
+</CODE>
+<BR>
+<CODE>
+initialize
+</CODE>
+<BR>
+<CODE>
+jmeno
+</CODE>
+<BR>
+<CODE>
+jmeno:
+</CODE>
+<BR>
+<CODE>
+prijmeni
+</CODE>
+<BR>
+<CODE>
+prijmeni:
+</CODE>
+<BR>
+</TD></TR>
+</TABLE>
+</TD>
+<TD VALIGN="TOP">
+<P>
+
+</P>
+</TD>
+</TR>
+</TABLE>
+<H4>code of non-accessing methods: </H4>
+<UL>
+<LI>
+<B><CODE>
+herec: anObject 
+</CODE></B>
+<PRE>
+	&quot;generated by Daskalos&quot;
+
+	| tmpHerec |
+	tmpHerec := self checkValue: anObject forVariable: &#35;herec.
+	&#40;tmpHerec isMemberOf: Herec&#41; 
+		ifFalse: 
+			[self 
+				error: &#39;Zprava &#39;&#39;Postava herec:&#39;&#39; prijima pouze instanci tridy &#39;&#39;Herec&#39;&#39;&#39;].
+	herec := tmpHerec</PRE>
+<LI>
+<B><CODE>
+initialize
+</CODE></B>
+<PRE>
+&quot;generated by Daskalos&quot;
+
+     super initialize.
+     jmeno := nil.
+     prijmeni := nil.
+     herec := nil.</PRE>
+</UL>
+<TABLE BORDER="0" CELLPADDING="3" CELLSPACING="0" WIDTH=100%>
+<TR>
+<TD WIDTH=20%>
+<TABLE WIDTH=95% BORDER="1" CELLSPACING="0" BORDERCOLOR=BLACK>
+<TR><TD><BIG>
+<B><CODE>
+Epizoda
+</CODE></B>
+</BIG></TD></TR>
+<TR><TD>
+<I><SMALL>instance variables</SMALL></I><BR>
+<CODE>
+cisloEpizody :Number
+</CODE>
+<BR>
+<CODE>
+datumVysilani :Date
+</CODE>
+<BR>
+<CODE>
+dobaTrvani :Number
+</CODE>
+<BR>
+<CODE>
+hodnoceni :Number
+</CODE>
+<BR>
+<CODE>
+lokality :Set
+</CODE>
+<BR>
+<CODE>
+nazev :String
+</CODE>
+<BR>
+<CODE>
+popis :String
+</CODE>
+<BR>
+<CODE>
+postavy :Set
+</CODE>
+<BR>
+<CODE>
+reziser :Object
+</CODE>
+<BR>
+<CODE>
+scenariste :Set
+</CODE>
+<BR>
+<CODE>
+serie :Object
+</CODE>
+<BR>
+</TD></TR>
+<TR><TD>
+<I><SMALL>methods</SMALL></I><BR>
+<CODE>
+cisloEpizody
+</CODE>
+<BR>
+<CODE>
+cisloEpizody:
+</CODE>
+<BR>
+<CODE>
+datumVysilani
+</CODE>
+<BR>
+<CODE>
+datumVysilani:
+</CODE>
+<BR>
+<CODE>
+dobaTrvani
+</CODE>
+<BR>
+<CODE>
+dobaTrvani:
+</CODE>
+<BR>
+<CODE>
+hodnoceni
+</CODE>
+<BR>
+<CODE>
+hodnoceni:
+</CODE>
+<BR>
+<CODE>
+initialize
+</CODE>
+<BR>
+<CODE>
+lokality
+</CODE>
+<BR>
+<CODE>
+nazev
+</CODE>
+<BR>
+<CODE>
+nazev:
+</CODE>
+<BR>
+<CODE>
+popis
+</CODE>
+<BR>
+<CODE>
+popis:
+</CODE>
+<BR>
+<CODE>
+postavy
+</CODE>
+<BR>
+<CODE>
+reziser
+</CODE>
+<BR>
+<CODE>
+reziser:
+</CODE>
+<BR>
+<CODE>
+scenariste
+</CODE>
+<BR>
+<CODE>
+serie
+</CODE>
+<BR>
+<CODE>
+serie:
+</CODE>
+<BR>
+<CODE>
+UmisteniVZebricku
+</CODE>
+<BR>
+</TD></TR>
+</TABLE>
+</TD>
+<TD VALIGN="TOP">
+<P>
+
+</P>
+</TD>
+</TR>
+</TABLE>
+<H4>code of non-accessing methods: </H4>
+<UL>
+<LI>
+<B><CODE>
+hodnoceni: anObject 
+</CODE></B>
+<PRE>
+	&quot;generated by Daskalos&quot;
+
+	| tmpHodnoceni |
+	tmpHodnoceni := self checkValue: anObject forVariable: &#35;hodnoceni.
+	&#40;tmpHodnoceni &gt; 10 or: [tmpHodnoceni &lt; 0]&#41; 
+		ifTrue: [self error: &#39;Hodnoceni musi byt cislo od 0 do 10&#39;].
+	hodnoceni := tmpHodnoceni</PRE>
+<LI>
+<B><CODE>
+initialize
+</CODE></B>
+<PRE>
+&quot;generated by Daskalos&quot;
+
+     super initialize.
+     cisloEpizody := nil.
+     datumVysilani := nil.
+     nazev := nil.
+     hodnoceni := nil.
+     popis := nil.
+     dobaTrvani := nil.
+     scenariste := Set new.
+     lokality := Set new.
+     reziser := nil.
+     serie := nil.
+     postavy := Set new.</PRE>
+<LI>
+<B><CODE>
+nazev: anObject 
+</CODE></B>
+<PRE>
+	&quot;generated by Daskalos&quot;
+
+	| tmpNazev |
+	tmpNazev := self checkValue: anObject forVariable: &#35;nazev.
+	tmpNazev size &gt; 100 
+		ifTrue: [self error: &#39;Nazev epizody muze mit maximalne 100 znaku&#39;].
+	nazev := tmpNazev</PRE>
+<LI>
+<B><CODE>
+reziser: anObject 
+</CODE></B>
+<PRE>
+	&quot;generated by Daskalos&quot;
+
+	| tmpReziser |
+	tmpReziser := self checkValue: anObject forVariable: &#35;reziser.
+	&#40;tmpReziser isMemberOf: Reziser&#41; 
+		ifFalse: 
+			[self 
+				error: &#39;Zprava &#39;&#39;Epizoda reziser:&#39;&#39; prijima pouze instanci tridy &#39;&#39;Reziser&#39;&#39;&#39;].
+	reziser := tmpReziser</PRE>
+<LI>
+<B><CODE>
+serie: anObject 
+</CODE></B>
+<PRE>
+	&quot;generated by Daskalos&quot;
+
+	| tmpSerie |
+	tmpSerie := self checkValue: anObject forVariable: &#35;serie.
+	&#40;tmpSerie isMemberOf: Serie&#41; 
+		ifFalse: 
+			[self 
+				error: &#39;Zprava &#39;&#39;Epizoda serie:&#39;&#39; prijima pouze instanci tridy &#39;&#39;Serie&#39;&#39;&#39;].
+	serie := tmpSerie</PRE>
+<LI>
+<B><CODE>
+UmisteniVZebricku
+</CODE></B>
+<PRE>
+	&quot;Umisteni v zebricku serazenych epizod&quot;
+
+	^&#40;&#40;Epizoda allInstances collect: [:a | a hodnoceni]&#41; asSet 
+		sortBy: [:a | a hodnoceni]&#41; indexOf: hodnoceni</PRE>
+</UL>
+<TABLE BORDER="0" CELLPADDING="3" CELLSPACING="0" WIDTH=100%>
+<TR>
+<TD WIDTH=20%>
+<TABLE WIDTH=95% BORDER="1" CELLSPACING="0" BORDERCOLOR=BLACK>
+<TR><TD><BIG>
+<B><CODE>
+Osoba
+</CODE></B>
+</BIG></TD></TR>
+<TR><TD>
+<I><SMALL>instance variables</SMALL></I><BR>
+<CODE>
+datumNarozeni :Date
+</CODE>
+<BR>
+<CODE>
+hodinovaMzda :Number
+</CODE>
+<BR>
+<CODE>
+jmeno :String
+</CODE>
+<BR>
+<CODE>
+narodnost :String
+</CODE>
+<BR>
+<CODE>
+oceneni :Set
+</CODE>
+<BR>
+<CODE>
+pohlavi :String
+</CODE>
+<BR>
+<CODE>
+praceHodin :Number
+</CODE>
+<BR>
+<CODE>
+prijmeni :String
+</CODE>
+<BR>
+</TD></TR>
+<TR><TD>
+<I><SMALL>methods</SMALL></I><BR>
+<CODE>
+datumNarozeni
+</CODE>
+<BR>
+<CODE>
+datumNarozeni:
+</CODE>
+<BR>
+<CODE>
+hodinovaMzda
+</CODE>
+<BR>
+<CODE>
+hodinovaMzda:
+</CODE>
+<BR>
+<CODE>
+initialize
+</CODE>
+<BR>
+<CODE>
+jmeno
+</CODE>
+<BR>
+<CODE>
+jmeno:
+</CODE>
+<BR>
+<CODE>
+Mzda
+</CODE>
+<BR>
+<CODE>
+narodnost
+</CODE>
+<BR>
+<CODE>
+narodnost:
+</CODE>
+<BR>
+<CODE>
+oceneni
+</CODE>
+<BR>
+<CODE>
+PocetEpizod
+</CODE>
+<BR>
+<CODE>
+pohlavi
+</CODE>
+<BR>
+<CODE>
+pohlavi:
+</CODE>
+<BR>
+<CODE>
+praceHodin
+</CODE>
+<BR>
+<CODE>
+praceHodin:
+</CODE>
+<BR>
+<CODE>
+prijmeni
+</CODE>
+<BR>
+<CODE>
+prijmeni:
+</CODE>
+<BR>
+</TD></TR>
+</TABLE>
+</TD>
+<TD VALIGN="TOP">
+<P>
+
+</P>
+</TD>
+</TR>
+</TABLE>
+<H4>code of non-accessing methods: </H4>
+<UL>
+<LI>
+<B><CODE>
+datumNarozeni
+</CODE></B>
+<PRE>
+	&quot;generated by Daskalos&quot;
+
+	^datumNarozeni printFormat: &#35;&#40;1 2 3 &#36;. 1 1&#41;</PRE>
+<LI>
+<B><CODE>
+datumNarozeni: anObject 
+</CODE></B>
+<PRE>
+	&quot;generated by Daskalos&quot;
+
+	| tmpDatumNarozeni |
+	tmpDatumNarozeni := self checkValue: anObject forVariable: &#35;datumNarozeni.
+	tmpDatumNarozeni &lt; &#40;Date readFromString: &#39;1-1-1900&#39;&#41; 
+		ifTrue: [self error: &#39;Minimalni povoleny datum narozeni je 1-1-1900&#39;].
+	datumNarozeni := tmpDatumNarozeni</PRE>
+<LI>
+<B><CODE>
+initialize
+</CODE></B>
+<PRE>
+&quot;generated by Daskalos&quot;
+
+     super initialize.
+     jmeno := nil.
+     prijmeni := nil.
+     datumNarozeni := nil.
+     narodnost := nil.
+     pohlavi := nil.
+     oceneni := Set new.
+     praceHodin := nil.
+     hodinovaMzda := nil.</PRE>
+<LI>
+<B><CODE>
+Mzda
+</CODE></B>
+<PRE>
+	^praceHodin &#42; hodinovaMzda</PRE>
+<LI>
+<B><CODE>
+PocetEpizod
+</CODE></B>
+<PRE>
+	^0</PRE>
+<LI>
+<B><CODE>
+pohlavi
+</CODE></B>
+<PRE>
+	&quot;generated by Daskalos&quot;
+
+	pohlavi isNil ifTrue: [^&#39;&lt;neuvedeno&gt;&#39;] ifFalse: [^pohlavi]</PRE>
+</UL>
+<TABLE BORDER="0" CELLPADDING="3" CELLSPACING="0" WIDTH=100%>
+<TR>
+<TD WIDTH=20%>
+<TABLE WIDTH=95% BORDER="1" CELLSPACING="0" BORDERCOLOR=BLACK>
+<TR><TD><BIG>
+<B><CODE>
+Spolecnost
+</CODE></B>
+</BIG></TD></TR>
+<TR><TD>
+<I><SMALL>instance variables</SMALL></I><BR>
+<CODE>
+adresa :Object
+</CODE>
+<BR>
+<CODE>
+nazev :String
+</CODE>
+<BR>
+</TD></TR>
+<TR><TD>
+<I><SMALL>methods</SMALL></I><BR>
+<CODE>
+adresa
+</CODE>
+<BR>
+<CODE>
+adresa:
+</CODE>
+<BR>
+<CODE>
+initialize
+</CODE>
+<BR>
+<CODE>
+nazev
+</CODE>
+<BR>
+<CODE>
+nazev:
+</CODE>
+<BR>
+<CODE>
+NejlepsiSerial
+</CODE>
+<BR>
+</TD></TR>
+</TABLE>
+</TD>
+<TD VALIGN="TOP">
+<P>
+
+</P>
+</TD>
+</TR>
+</TABLE>
+<H4>code of non-accessing methods: </H4>
+<UL>
+<LI>
+<B><CODE>
+adresa: anObject 
+</CODE></B>
+<PRE>
+	&quot;generated by Daskalos&quot;
+
+	| tmpAdresa |
+	tmpAdresa := self checkValue: anObject forVariable: &#35;adresa.
+	&#40;tmpAdresa isMemberOf: Adresa&#41; 
+		ifFalse: 
+			[self 
+				error: &#39;Zprava &#39;&#39;Spolecnost adresa:&#39;&#39; prijima pouze instanci tridy &#39;&#39;Adresa&#39;&#39;&#39;].
+	adresa := tmpAdresa</PRE>
+<LI>
+<B><CODE>
+initialize
+</CODE></B>
+<PRE>
+&quot;generated by Daskalos&quot;
+
+     super initialize.
+     nazev := nil.
+     adresa := nil.</PRE>
+<LI>
+<B><CODE>
+NejlepsiSerial
+</CODE></B>
+<PRE>
+	&quot;Nejlepsi serial spolecnosti podle prumerneho hodnoceni serialu&quot;
+
+	| serialy |
+	serialy := Serial allInstances select: [:se | se spolecnost = self].
+	^serialy inject: nil
+		into: 
+			[:a :b | 
+			&#40;a isNil ifTrue: [0] ifFalse: [a Hodnoceni]&#41; &lt; b Hodnoceni 
+				ifFalse: [a]
+				ifTrue: [b]]</PRE>
+</UL>
+<TABLE BORDER="0" CELLPADDING="3" CELLSPACING="0" WIDTH=100%>
+<TR>
+<TD WIDTH=20%>
+<TABLE WIDTH=95% BORDER="1" CELLSPACING="0" BORDERCOLOR=BLACK>
+<TR><TD><BIG>
+<B><CODE>
+Herec
+</CODE></B>
+</BIG></TD></TR>
+<TR><TD>
+<I><SMALL>instance variables</SMALL></I><BR>
+</TD></TR>
+<TR><TD>
+<I><SMALL>methods</SMALL></I><BR>
+<CODE>
+initialize
+</CODE>
+<BR>
+<CODE>
+PocetEpizod
+</CODE>
+<BR>
+<CODE>
+PocetRoli
+</CODE>
+<BR>
+</TD></TR>
+</TABLE>
+</TD>
+<TD VALIGN="TOP">
+<P>
+
+</P>
+</TD>
+</TR>
+</TABLE>
+<H4>code of non-accessing methods: </H4>
+<UL>
+<LI>
+<B><CODE>
+initialize
+</CODE></B>
+<PRE>
+&quot;generated by Daskalos&quot;
+
+     super initialize.</PRE>
+<LI>
+<B><CODE>
+PocetEpizod
+</CODE></B>
+<PRE>
+	&quot;Pocet epizod&#44; ve kterych herec hral bez ohledu na pocet postav&quot;
+
+	^&#40;Epizoda allInstances 
+		select: [:ep | &#40;ep postavy collect: [:p | p herec]&#41; includes: self]&#41; size</PRE>
+<LI>
+<B><CODE>
+PocetRoli
+</CODE></B>
+<PRE>
+	&quot;Pocet roli&#44; ktere herec hral&quot;
+
+	^&#40;Postava allInstances select: [:po | po herec = self]&#41; size</PRE>
+</UL>
+<TABLE BORDER="0" CELLPADDING="3" CELLSPACING="0" WIDTH=100%>
+<TR>
+<TD WIDTH=20%>
+<TABLE WIDTH=95% BORDER="1" CELLSPACING="0" BORDERCOLOR=BLACK>
+<TR><TD><BIG>
+<B><CODE>
+Scenarista
+</CODE></B>
+</BIG></TD></TR>
+<TR><TD>
+<I><SMALL>instance variables</SMALL></I><BR>
+<CODE>
+prumPocetStran :Number
+</CODE>
+<BR>
+</TD></TR>
+<TR><TD>
+<I><SMALL>methods</SMALL></I><BR>
+<CODE>
+CelkemStran
+</CODE>
+<BR>
+<CODE>
+initialize
+</CODE>
+<BR>
+<CODE>
+PocetEpizod
+</CODE>
+<BR>
+<CODE>
+prumPocetStran
+</CODE>
+<BR>
+<CODE>
+prumPocetStran:
+</CODE>
+<BR>
+</TD></TR>
+</TABLE>
+</TD>
+<TD VALIGN="TOP">
+<P>
+
+</P>
+</TD>
+</TR>
+</TABLE>
+<H4>code of non-accessing methods: </H4>
+<UL>
+<LI>
+<B><CODE>
+CelkemStran
+</CODE></B>
+<PRE>
+	&quot;Celkem stran za vsechny epizody&quot;
+
+	^&#40;Epizoda allInstances select: [:ep | ep scenariste includes: self]&#41; size 
+		&#42; prumPocetStran</PRE>
+<LI>
+<B><CODE>
+initialize
+</CODE></B>
+<PRE>
+&quot;generated by Daskalos&quot;
+
+     super initialize.
+     prumPocetStran := nil.</PRE>
+<LI>
+<B><CODE>
+PocetEpizod
+</CODE></B>
+<PRE>
+	&quot;Pocet epizod&#44; na kterych se scenarista podilel&quot;
+
+	^&#40;Epizoda allInstances select: [:ep | ep scenariste includes: self]&#41; size</PRE>
+</UL>
+<TABLE BORDER="0" CELLPADDING="3" CELLSPACING="0" WIDTH=100%>
+<TR>
+<TD WIDTH=20%>
+<TABLE WIDTH=95% BORDER="1" CELLSPACING="0" BORDERCOLOR=BLACK>
+<TR><TD><BIG>
+<B><CODE>
+Reziser
+</CODE></B>
+</BIG></TD></TR>
+<TR><TD>
+<I><SMALL>instance variables</SMALL></I><BR>
+</TD></TR>
+<TR><TD>
+<I><SMALL>methods</SMALL></I><BR>
+<CODE>
+initialize
+</CODE>
+<BR>
+<CODE>
+PocetEpizod
+</CODE>
+<BR>
+<CODE>
+VedeOsoby
+</CODE>
+<BR>
+</TD></TR>
+</TABLE>
+</TD>
+<TD VALIGN="TOP">
+<P>
+
+</P>
+</TD>
+</TR>
+</TABLE>
+<H4>code of non-accessing methods: </H4>
+<UL>
+<LI>
+<B><CODE>
+initialize
+</CODE></B>
+<PRE>
+&quot;generated by Daskalos&quot;
+
+     super initialize.</PRE>
+<LI>
+<B><CODE>
+PocetEpizod
+</CODE></B>
+<PRE>
+	&quot;Pocet epizod&#44; ktere dany reziser reziroval&quot;
+
+	^&#40;Epizoda allInstances select: [:ep | ep reziser = self]&#41; size</PRE>
+<LI>
+<B><CODE>
+VedeOsoby
+</CODE></B>
+<PRE>
+	&quot;Vedene osoby reziserem - scenariste a herci&quot;
+
+	| epizody vedeneOsoby |
+	epizody := Epizoda allInstances select: [:ep | ep reziser = self].
+	vedeneOsoby := &#40;epizody collect: [:es | es scenariste]&#41; flatten asSet.
+	&#40;&#40;epizody collect: [:es | es postavy]&#41; flatten collect: [:p | p herec]&#41; 
+		asSet do: [:h | vedeneOsoby add: h].
+	^vedeneOsoby</PRE>
+</UL>
+<HR>
+<H2>Links</H2>
+<A HREF="databaze_serialu.xml">Data file</A> and 
+<A HREF="databaze_serialu.st">class source</A>.
+
+<BR>
+
+<BR>
+<CODE>
+Generated by Daskalos - Object Modeling Tutor &#40;C&#41; 2006 V. Merunka
+</CODE>
+
+<BR>
+<CODE>
+April 25&#44; 2020
+</CODE>
+</BODY></HTML>
